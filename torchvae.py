@@ -1,5 +1,5 @@
 import argparse
-import numpy as npy
+import numpy as np
 import os
 from utils_vae import sigmoid, lrelu, tanh, img_tile, mnist_reader, relu, BCE_loss
 
@@ -17,13 +17,6 @@ def parse_args():
     return parser.parse_args()
 
 args = parse_args()
-cpu_enabled = 0
-try:
-    import cupy as np
-    cpu_enabled = 1
-except ImportError:
-    import numpy as np
-    print("CuPy not enabled on this machine")
 
 
 np.random.seed(111)
@@ -251,13 +244,15 @@ class VAE():
 
         #set batch indices
         batch_idx = train_size//self.batch_size
+        batches_per_epoch = min(10, batch_idx)
+        del batch_idx
 
         total_loss = 0
         total_kl = 0
         total = 0
 
         for epoch in range(self.epochs):
-            for idx in range(batch_idx):
+            for idx in range(batches_per_epoch):
                 # prepare batch and input vector z
                 train_batch = trainX[idx*self.batch_size:idx*self.batch_size + self.batch_size]
                 #ignore batch if there are insufficient elements
@@ -293,13 +288,10 @@ class VAE():
 
                 self.img = np.squeeze(out, axis=3) * 2 - 1
 
-                print("Epoch [%d] Step [%d]  RC Loss:%.4f  KL Loss:%.4f  lr: %.4f"%(
-                        epoch, idx, rec_loss / self.batch_size, kl / self.batch_size, self.learning_rate))
+                print("Epoch [%d] Step [%d/%d]  RC Loss:%.4f  KL Loss:%.4f  lr: %.4f"%(
+                        epoch, idx, batches_per_epoch, rec_loss / self.batch_size, kl / self.batch_size, self.learning_rate))
 
-            if cpu_enabled == 1:
-                sample = np.array(self.img)
-            else:
-                sample = np.asnumpy(self.img)
+            sample = np.array(self.img)
 
             #save image result every epoch
             img_tile(sample, self.img_path, epoch, idx, "res", True)
