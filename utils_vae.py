@@ -6,7 +6,7 @@ try:
 except ImportError:
     import numpy as np
 
-#Binary Cross-Entropy Loss Function for Reconstruction Loss 
+#Binary Cross-Entropy Loss Function for Reconstruction Loss
 epsilon = 10e-8
 def BCE_loss(x, y):
     loss = np.sum(-y * np.log(x + epsilon) - (1 - y) * np.log(1 - x + epsilon))
@@ -24,8 +24,8 @@ def relu(x, derivative=False):
     if derivative:
         return 1.0 * (res > 0)
     else:
-        return res * (res > 0)   
-    
+        return res * (res > 0)
+
 def lrelu(x, alpha=0.01, derivative=False):
     res = x
     if derivative:
@@ -79,7 +79,7 @@ def img_tile(imgs, path, epoch, step, name, save, aspect_ratio=1.0, tile_shape=N
 
             yoff = (img_shape[0] + border) * i
             xoff = (img_shape[1] + border) * j
-            tile_img[yoff:yoff+img_shape[0], xoff:xoff+img_shape[1], ...] = img 
+            tile_img[yoff:yoff+img_shape[0], xoff:xoff+img_shape[1], ...] = img
 
     path_name = path + "/iteration_%03d"%(epoch)+".jpg"
 
@@ -91,17 +91,17 @@ def img_tile(imgs, path, epoch, step, name, save, aspect_ratio=1.0, tile_shape=N
 def mnist_reader(numbers):
     def one_hot(label, output_dim):
         one_hot = np.zeros((len(label), output_dim))
-        
+
         for idx in range(0,len(label)):
             one_hot[idx, label[idx]] = 1
-        
+
         return one_hot
 
     #Training Data
     f = open('./data/train-images-idx3-ubyte')
     loaded = npy.fromfile(file=f, dtype=np.uint8)
 
-    trainX = loaded[16:].reshape((60000, 28, 28, 1)).astype(np.float32) / 255    
+    trainX = loaded[16:].reshape((60000, 28, 28, 1)).astype(np.float32) / 255
 
 
     f = open('./data/train-labels-idx1-ubyte')
@@ -113,4 +113,4 @@ def mnist_reader(numbers):
         if trainY[idx] in numbers:
             newtrainX.append(trainX[idx])
 
-    return np.array(newtrainX), trainY, len(newtrainX) 
+    return np.array(newtrainX), trainY, len(newtrainX)

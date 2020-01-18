@@ -1,7 +1,7 @@
 import argparse
 import numpy as np
 import os
-from utils_vae import img_tile, mnist_reader, BCE_loss
+from utils_vae import img_tile, mnist_reader
 
 import torch
 import torch.nn as nn
@@ -10,10 +10,17 @@ import torch.nn as nn
 TORCH_ENABLED = False
 
 
+def BCE_loss(x, y):
+    x = torch.from_numpy(x).float()
+    y = torch.from_numpy(y).float()
+    return nn.BCELoss(reduction='sum')(x, y).numpy()
+
+
 def sigmoid(x, derivative=False):
     if TORCH_ENABLED:
         raise Exception
-    val = torch.sigmoid(torch.from_numpy(x))
+    x = torch.from_numpy(x).float()
+    val = torch.sigmoid(x)
     if derivative:
         dx = val * (1 - val)
         return dx.numpy()
@@ -23,7 +30,8 @@ def sigmoid(x, derivative=False):
 def tanh(x, derivative=False):
     if TORCH_ENABLED:
         raise Exception
-    val = torch.tanh(torch.from_numpy(x))
+    x = torch.from_numpy(x).float()
+    val = torch.tanh(x)
     if derivative:
         dx = 1.0 - val ** 2
         return dx.numpy()
@@ -33,7 +41,7 @@ def tanh(x, derivative=False):
 def relu(x, derivative=False):
     if TORCH_ENABLED:
         raise Exception
-    x = torch.from_numpy(x)
+    x = torch.from_numpy(x).float()
     if derivative:
         dx = 1.0 * (x > 0)
         return dx.numpy()
@@ -44,7 +52,8 @@ def relu(x, derivative=False):
 def lrelu(x, alpha=0.01, derivative=False):
     if TORCH_ENABLED:
         raise Exception
-    val = nn.LeakyReLU(negative_slope=alpha)(torch.from_numpy(x))
+    x = torch.from_numpy(x).float()
+    val = nn.LeakyReLU(negative_slope=alpha)(x)
     if derivative:
         dx = torch.ones(*val.shape)
         dx[val < 0] = alpha
