@@ -132,8 +132,8 @@ class VAE(nn.Module):
 
         #set batch indices
         batch_idx = train_size//self.batch_size
-        # batches_per_epoch = min(10, batch_idx)
-        batches_per_epoch = batch_idx
+        batches_per_epoch = min(10, batch_idx)
+        # batches_per_epoch = batch_idx
         del batch_idx
 
         total_loss = 0
@@ -158,6 +158,7 @@ class VAE(nn.Module):
                 rec_loss = nn.BCELoss(reduction='sum')(out, torch.from_numpy(train_batch).float())
 
                 #K-L Divergence
+                # kl = -0.5 * np.sum(1 + logvar - np.power(mu, 2) - np.exp(logvar))
                 kl = -0.5 * torch.sum(1 + logvar - mu ** 2 - torch.exp(logvar))
 
                 loss = rec_loss + kl
