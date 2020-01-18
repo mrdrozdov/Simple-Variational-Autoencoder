@@ -1,7 +1,56 @@
 import argparse
 import numpy as np
 import os
-from utils_vae import sigmoid, lrelu, tanh, img_tile, mnist_reader, relu, BCE_loss
+from utils_vae import img_tile, mnist_reader, BCE_loss
+
+import torch
+import torch.nn as nn
+
+
+TORCH_ENABLED = False
+
+
+def sigmoid(x, derivative=False):
+    if TORCH_ENABLED:
+        raise Exception
+    val = torch.sigmoid(torch.from_numpy(x))
+    if derivative:
+        dx = val * (1 - val)
+        return dx.numpy()
+    return val.numpy()
+
+
+def tanh(x, derivative=False):
+    if TORCH_ENABLED:
+        raise Exception
+    val = torch.tanh(torch.from_numpy(x))
+    if derivative:
+        dx = 1.0 - val ** 2
+        return dx.numpy()
+    return val.numpy()
+
+
+def relu(x, derivative=False):
+    if TORCH_ENABLED:
+        raise Exception
+    x = torch.from_numpy(x)
+    if derivative:
+        dx = 1.0 * (x > 0)
+        return dx.numpy()
+    val = nn.ReLU()(x)
+    return val.numpy()
+
+
+def lrelu(x, alpha=0.01, derivative=False):
+    if TORCH_ENABLED:
+        raise Exception
+    val = nn.LeakyReLU(negative_slope=alpha)(torch.from_numpy(x))
+    if derivative:
+        dx = torch.ones(*val.shape)
+        dx[val < 0] = alpha
+        return dx.numpy()
+    return val.numpy()
+
 
 def parse_args():
     parser = argparse.ArgumentParser()
